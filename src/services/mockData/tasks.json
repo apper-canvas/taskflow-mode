@@ -1,0 +1,57 @@
+[
+  {
+    "id": "1",
+    "title": "Review quarterly business metrics",
+    "description": "Analyze Q3 performance data and prepare insights for the team meeting",
+    "categoryId": "work",
+    "priority": 3,
+    "dueDate": "2024-01-15T10:00:00.000Z",
+    "completed": false,
+    "createdAt": "2024-01-12T09:00:00.000Z",
+    "completedAt": null
+  },
+  {
+    "id": "2",
+    "title": "Update project timeline",
+    "description": "Revise milestones based on client feedback and resource availability",
+    "categoryId": "work",
+    "priority": 2,
+    "dueDate": "2024-01-14T16:00:00.000Z",
+    "completed": true,
+    "createdAt": "2024-01-10T14:30:00.000Z",
+    "completedAt": "2024-01-13T15:45:00.000Z"
+  },
+  {
+    "id": "3",
+    "title": "Schedule dentist appointment",
+    "description": "Call Dr. Smith's office for routine cleaning and checkup",
+    "categoryId": "personal",
+    "priority": 1,
+    "dueDate": "2024-01-16T12:00:00.000Z",
+    "completed": false,
+    "createdAt": "2024-01-11T08:15:00.000Z",
+    "completedAt": null
+  },
+  {
+    "id": "4",
+    "title": "Complete React course module",
+    "description": "Finish the advanced hooks section and submit practice exercises",
+    "categoryId": "learning",
+    "priority": 2,
+    "dueDate": "2024-01-17T20:00:00.000Z",
+    "completed": false,
+    "createdAt": "2024-01-12T19:00:00.000Z",
+    "completedAt": null
+  },
+  {
+    "id": "5",
+    "title": "Plan weekend hiking trip",
+    "description": "Research trails, check weather, and pack gear for Sunday adventure",
+    "categoryId": "personal",
+    "priority": 1,
+    "dueDate": "2024-01-19T09:00:00.000Z",
+    "completed": false,
+    "createdAt": "2024-01-12T17:30:00.000Z",
+    "completedAt": null
+  }
+]

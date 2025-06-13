@@ -1,0 +1,32 @@
+[
+  {
+    "id": "work",
+    "name": "Work",
+    "color": "#5B21B6",
+    "icon": "Briefcase"
+  },
+  {
+    "id": "personal",
+    "name": "Personal",
+    "color": "#10B981",
+    "icon": "User"
+  },
+  {
+    "id": "learning",
+    "name": "Learning",
+    "color": "#F59E0B",
+    "icon": "BookOpen"
+  },
+  {
+    "id": "health",
+    "name": "Health",
+    "color": "#EF4444",
+    "icon": "Heart"
+  },
+  {
+    "id": "finance",
+    "name": "Finance",
+    "color": "#3B82F6",
+    "icon": "DollarSign"
+  }
+]
