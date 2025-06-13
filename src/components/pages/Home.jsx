@@ -199,9 +199,9 @@ const filteredAndSortedTasks = useMemo(() => {
           t.id === taskId ? taskToArchive : t
         ));
       }
-      toast.error('Failed to archive task');
+toast.error('Failed to archive task');
     }
-
+  };
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
