@@ -245,6 +245,7 @@ toast.error('Failed to archive task');
               todayTasks={progressStats.today}
               overdueTasks={progressStats.overdue}
             />
+          </div>
         </aside>
 
         {/* Main Content */}
