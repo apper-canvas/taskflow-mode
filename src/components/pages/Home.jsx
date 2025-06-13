@@ -257,9 +257,9 @@ toast.error('Failed to archive task');
                   <p className="text-sm text-gray-600">
                     {filteredAndSortedTasks.length} tasks found
                   </p>
-                </div>
+</div>
                 
-<div className="flex space-x-3">
+                <div className="flex space-x-3">
                   <Button
                     icon="Plus"
                     onClick={() => setShowAddForm(true)}
@@ -276,6 +276,7 @@ toast.error('Failed to archive task');
                     Create Recurring
                   </Button>
                 </div>
+              </div>
 
               {/* Search and Filters */}
               <div className="space-y-4">
