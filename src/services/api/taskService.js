@@ -70,11 +70,10 @@ const taskService = {
     return tasks.filter(t => t.completed).map(t => ({ ...t }));
   },
 
-  async getPending() {
+async getPending() {
     await delay(250);
     return tasks.filter(t => !t.completed).map(t => ({ ...t }));
-  }
-},
+  },
 
   async archive(id) {
     await delay(200);
@@ -114,5 +113,6 @@ const taskService = {
     await delay(250);
     return tasks.filter(t => t.archived).map(t => ({ ...t }));
   }
+};
 
 export default taskService;
