@@ -128,7 +128,7 @@ async getArchived() {
       endDate 
     } = taskData;
 
-    const tasks = [];
+const generatedTasks = [];
     let currentDate = new Date();
     let occurrenceCount = 0;
     
@@ -151,7 +151,7 @@ async getArchived() {
         recurringId: Date.now().toString()
       };
       
-      tasks.push(newTask);
+      generatedTasks.push(newTask);
       occurrenceCount++;
       
       // Calculate next occurrence
@@ -167,11 +167,10 @@ async getArchived() {
       if (occurrenceCount >= 100) break;
     }
     
-// Add all generated tasks
-    tasks.forEach(task => tasks.push(task));
+    // Add all generated tasks to the module-level tasks array
+    generatedTasks.forEach(task => tasks.push(task));
     
-    return tasks.map(task => ({ ...task }));
-  },
+    return generatedTasks.map(task => ({ ...task }));
 
   async getTasksByDateRange(startDate, endDate) {
     await delay(200);
