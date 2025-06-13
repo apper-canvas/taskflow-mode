@@ -167,10 +167,11 @@ const generatedTasks = [];
       if (occurrenceCount >= 100) break;
     }
     
-    // Add all generated tasks to the module-level tasks array
+// Add all generated tasks to the module-level tasks array
     generatedTasks.forEach(task => tasks.push(task));
     
     return generatedTasks.map(task => ({ ...task }));
+  },
 
   async getTasksByDateRange(startDate, endDate) {
     await delay(200);
@@ -234,5 +235,6 @@ const generatedTasks = [];
     
     return categoryStats;
   }
+};
 
 export default taskService;
