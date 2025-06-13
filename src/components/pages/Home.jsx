@@ -10,6 +10,7 @@ import CategoryFilter from '@/components/molecules/CategoryFilter';
 import SortDropdown from '@/components/molecules/SortDropdown';
 import TaskList from '@/components/organisms/TaskList';
 import AddTaskForm from '@/components/organisms/AddTaskForm';
+import RecurringTaskModal from '@/components/organisms/RecurringTaskModal';
 import ProgressOverview from '@/components/organisms/ProgressOverview';
 
 const Home = () => {
@@ -20,7 +21,8 @@ const Home = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState(null);
   const [sortBy, setSortBy] = useState('dueDate');
-  const [showAddForm, setShowAddForm] = useState(false);
+const [showAddForm, setShowAddForm] = useState(false);
+  const [showRecurringForm, setShowRecurringForm] = useState(false);
 
   // Load initial data
   useEffect(() => {
@@ -126,6 +128,16 @@ const filteredAndSortedTasks = useMemo(() => {
     try {
       const newTask = await taskService.create(taskData);
       setTasks(prev => [newTask, ...prev]);
+    } catch (error) {
+      throw error;
+    }
+};
+
+  const handleAddRecurring = async (taskData) => {
+    try {
+      const newTasks = await taskService.createRecurring(taskData);
+      setTasks(prev => [...newTasks, ...prev]);
+      toast.success(`${newTasks.length} recurring tasks created successfully!`);
     } catch (error) {
       throw error;
     }
@@ -247,14 +259,23 @@ toast.error('Failed to archive task');
                   </p>
                 </div>
                 
-                <Button
-                  icon="Plus"
-                  onClick={() => setShowAddForm(true)}
-                  className="shadow-md"
-                >
-                  Add Task
-                </Button>
-              </div>
+<div className="flex space-x-3">
+                  <Button
+                    icon="Plus"
+                    onClick={() => setShowAddForm(true)}
+                    className="shadow-md"
+                  >
+                    Add Task
+                  </Button>
+                  <Button
+                    icon="RefreshCw"
+                    variant="secondary"
+                    onClick={() => setShowRecurringForm(true)}
+                    className="shadow-md"
+                  >
+                    Create Recurring
+                  </Button>
+                </div>
 
               {/* Search and Filters */}
               <div className="space-y-4">
@@ -299,6 +320,14 @@ onEditTask={handleEditTask}
         isOpen={showAddForm}
         onClose={() => setShowAddForm(false)}
         onSubmit={handleAddTask}
+categories={categories}
+      />
+
+      {/* Recurring Task Form Modal */}
+      <RecurringTaskModal
+        isOpen={showRecurringForm}
+        onClose={() => setShowRecurringForm(false)}
+        onSubmit={handleAddRecurring}
         categories={categories}
       />
     </div>

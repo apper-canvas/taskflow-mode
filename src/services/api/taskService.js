@@ -112,6 +112,65 @@ async getPending() {
   async getArchived() {
     await delay(250);
     return tasks.filter(t => t.archived).map(t => ({ ...t }));
+},
+
+  async createRecurring(taskData) {
+    await delay(350);
+    
+    const { 
+      title, 
+      description = '', 
+      categoryId, 
+      priority = 1, 
+      schedulePattern, 
+      interval = 1, 
+      maxOccurrences, 
+      endDate 
+    } = taskData;
+
+    const tasks = [];
+    let currentDate = new Date();
+    let occurrenceCount = 0;
+    
+    // Generate recurring tasks
+    while (
+      (!maxOccurrences || occurrenceCount < maxOccurrences) && 
+      (!endDate || currentDate <= new Date(endDate))
+    ) {
+      const newTask = {
+        id: `${Date.now()}-${occurrenceCount}`,
+        title: `${title}${occurrenceCount > 0 ? ` (${occurrenceCount + 1})` : ''}`,
+        description,
+        categoryId,
+        priority,
+        dueDate: new Date(currentDate).toISOString(),
+        completed: false,
+        createdAt: new Date().toISOString(),
+        completedAt: null,
+        isRecurring: true,
+        recurringId: Date.now().toString()
+      };
+      
+      tasks.push(newTask);
+      occurrenceCount++;
+      
+      // Calculate next occurrence
+      if (schedulePattern === 'daily') {
+        currentDate.setDate(currentDate.getDate() + interval);
+      } else if (schedulePattern === 'weekly') {
+        currentDate.setDate(currentDate.getDate() + (interval * 7));
+      } else if (schedulePattern === 'monthly') {
+        currentDate.setMonth(currentDate.getMonth() + interval);
+      }
+      
+      // Safety limit
+      if (occurrenceCount >= 100) break;
+    }
+    
+    // Add all generated tasks
+    tasks.forEach(task => this.tasks.push(task));
+    
+    return tasks.map(task => ({ ...task }));
   }
 };
 
