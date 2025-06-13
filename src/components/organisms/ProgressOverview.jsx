@@ -12,7 +12,9 @@ const ProgressOverview = ({
   const navigate = useNavigate();
   const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
   const circumference = 2 * Math.PI * 40; // radius = 40
-  const strokeDashoffset = circumference - (completionRate / 100) * circumference;
+const strokeDashoffset = circumference - (completionRate / 100) * circumference;
+  
+  const stats = [
     {
       label: 'Total Tasks',
       value: totalTasks,
