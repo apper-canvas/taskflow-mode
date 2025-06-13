@@ -239,9 +239,12 @@ toast.error('Failed to archive task');
               <h1 className="text-2xl font-heading font-bold text-gray-900">TaskFlow</h1>
               <p className="text-sm text-gray-600 mt-1">Organize and complete daily tasks</p>
             </div>
-            
-            <ProgressOverview {...progressStats} />
-          </div>
+<ProgressOverview 
+              totalTasks={progressStats.total}
+              completedTasks={progressStats.completed}
+              todayTasks={progressStats.today}
+              overdueTasks={progressStats.overdue}
+            />
         </aside>
 
         {/* Main Content */}

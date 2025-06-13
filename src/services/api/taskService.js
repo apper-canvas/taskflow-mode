@@ -170,8 +170,70 @@ async getPending() {
     // Add all generated tasks
     tasks.forEach(task => this.tasks.push(task));
     
-    return tasks.map(task => ({ ...task }));
+return tasks.map(task => ({ ...task }));
+  },
+
+  async getTasksByDateRange(startDate, endDate) {
+    await delay(200);
+    return tasks.filter(task => {
+      if (!task.completedAt) return false;
+      const completedDate = new Date(task.completedAt);
+      return completedDate >= startDate && completedDate <= endDate;
+    }).map(t => ({ ...t }));
+  },
+
+  async getCompletionStats(days = 7) {
+    await delay(300);
+    const now = new Date();
+    const stats = [];
+    
+    for (let i = days - 1; i >= 0; i--) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i);
+      date.setHours(0, 0, 0, 0);
+      
+      const nextDate = new Date(date);
+      nextDate.setDate(nextDate.getDate() + 1);
+      
+      const dayTasks = tasks.filter(task => {
+        if (!task.completedAt) return false;
+        const completedDate = new Date(task.completedAt);
+        return completedDate >= date && completedDate < nextDate;
+      });
+      
+      stats.push({
+        date: date.toISOString().split('T')[0],
+        completed: dayTasks.length,
+        total: tasks.filter(task => {
+          if (!task.dueDate) return false;
+          const dueDate = new Date(task.dueDate);
+          dueDate.setHours(0, 0, 0, 0);
+          return dueDate.getTime() === date.getTime();
+        }).length
+      });
+    }
+    
+    return stats;
+  },
+
+  async getCategoryStats() {
+    await delay(250);
+    const categoryStats = {};
+    
+    tasks.forEach(task => {
+      if (!categoryStats[task.categoryId]) {
+        categoryStats[task.categoryId] = {
+          total: 0,
+          completed: 0
+        };
+      }
+      categoryStats[task.categoryId].total++;
+      if (task.completed) {
+        categoryStats[task.categoryId].completed++;
+      }
+    });
+    
+    return categoryStats;
   }
-};
 
 export default taskService;

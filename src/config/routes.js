@@ -1,5 +1,6 @@
 import Home from '@/components/pages/Home';
 import Archive from '@/components/pages/Archive';
+import Summary from '@/components/pages/Summary';
 
 export const routes = [
   {

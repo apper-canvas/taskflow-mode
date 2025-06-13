@@ -1,18 +1,18 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import ApperIcon from '@/components/ApperIcon';
 
 const ProgressOverview = ({ 
   totalTasks = 0, 
   completedTasks = 0, 
   todayTasks = 0, 
-  overdueTasks = 0 
+  overdueTasks = 0
 }) => {
+  const navigate = useNavigate();
   const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
   const circumference = 2 * Math.PI * 40; // radius = 40
   const strokeDashoffset = circumference - (completionRate / 100) * circumference;
-
-  const stats = [
     {
       label: 'Total Tasks',
       value: totalTasks,
@@ -122,20 +122,22 @@ const ProgressOverview = ({
         ))}
       </div>
 
-      {/* Quick Actions */}
+{/* Quick Actions */}
       <div className="mt-6 pt-4 border-t border-gray-200">
         <div className="grid grid-cols-2 gap-2">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
+            onClick={() => navigate('/summary')}
             className="p-2 bg-primary/10 text-primary rounded-lg text-sm font-medium hover:bg-primary/20 transition-colors"
           >
-            <ApperIcon name="Plus" className="w-4 h-4 mx-auto mb-1" />
-            Add Task
+            <ApperIcon name="BarChart3" className="w-4 h-4 mx-auto mb-1" />
+            Summary
           </motion.button>
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
+            onClick={() => navigate('/archive')}
             className="p-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
           >
             <ApperIcon name="Archive" className="w-4 h-4 mx-auto mb-1" />
