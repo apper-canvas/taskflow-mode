@@ -109,10 +109,10 @@ async getPending() {
     return { ...restoredTask };
   },
 
-  async getArchived() {
+async getArchived() {
     await delay(250);
     return tasks.filter(t => t.archived).map(t => ({ ...t }));
-},
+  },
 
   async createRecurring(taskData) {
     await delay(350);
@@ -167,10 +167,10 @@ async getPending() {
       if (occurrenceCount >= 100) break;
     }
     
-    // Add all generated tasks
-    tasks.forEach(task => this.tasks.push(task));
+// Add all generated tasks
+    tasks.forEach(task => tasks.push(task));
     
-return tasks.map(task => ({ ...task }));
+    return tasks.map(task => ({ ...task }));
   },
 
   async getTasksByDateRange(startDate, endDate) {
