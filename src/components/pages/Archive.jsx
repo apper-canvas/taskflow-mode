@@ -9,18 +9,15 @@ import SearchBar from '@/components/molecules/SearchBar';
 import CategoryFilter from '@/components/molecules/CategoryFilter';
 import SortDropdown from '@/components/molecules/SortDropdown';
 import TaskList from '@/components/organisms/TaskList';
-import AddTaskForm from '@/components/organisms/AddTaskForm';
-import ProgressOverview from '@/components/organisms/ProgressOverview';
 
-const Home = () => {
+const Archive = () => {
   const [tasks, setTasks] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState(null);
-  const [sortBy, setSortBy] = useState('dueDate');
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [sortBy, setSortBy] = useState('archivedAt');
 
   // Load initial data
   useEffect(() => {
@@ -29,16 +26,16 @@ const Home = () => {
       setError(null);
       
       try {
-        const [tasksData, categoriesData] = await Promise.all([
-          taskService.getAll(),
+        const [archivedTasks, categoriesData] = await Promise.all([
+          taskService.getArchived(),
           categoryService.getAll()
         ]);
         
-        setTasks(tasksData);
+        setTasks(archivedTasks);
         setCategories(categoriesData);
       } catch (err) {
-        setError(err.message || 'Failed to load data');
-        toast.error('Failed to load tasks');
+        setError(err.message || 'Failed to load archived tasks');
+        toast.error('Failed to load archived tasks');
       } finally {
         setLoading(false);
       }
@@ -48,8 +45,8 @@ const Home = () => {
   }, []);
 
   // Filter and sort tasks
-const filteredAndSortedTasks = useMemo(() => {
-    let filtered = tasks.filter(task => !task.archived);
+  const filteredAndSortedTasks = useMemo(() => {
+    let filtered = [...tasks];
 
     // Apply search filter
     if (searchQuery) {
@@ -67,6 +64,9 @@ const filteredAndSortedTasks = useMemo(() => {
     // Apply sorting
     filtered.sort((a, b) => {
       switch (sortBy) {
+        case 'archivedAt':
+          return new Date(b.archivedAt) - new Date(a.archivedAt);
+        
         case 'dueDate':
           if (!a.dueDate && !b.dueDate) return 0;
           if (!a.dueDate) return 1;
@@ -80,10 +80,6 @@ const filteredAndSortedTasks = useMemo(() => {
           const catA = categories.find(c => c.id === a.categoryId)?.name || '';
           const catB = categories.find(c => c.id === b.categoryId)?.name || '';
           return catA.localeCompare(catB);
-        
-        case 'status':
-          if (a.completed === b.completed) return 0;
-          return a.completed ? 1 : -1;
         
         case 'created':
           return new Date(b.createdAt) - new Date(a.createdAt);
@@ -101,34 +97,71 @@ const filteredAndSortedTasks = useMemo(() => {
     const counts = {};
     categories.forEach(category => {
       counts[category.id] = tasks.filter(task => 
-        task.categoryId === category.id && !task.completed
+        task.categoryId === category.id
       ).length;
     });
     return counts;
   }, [tasks, categories]);
 
-  // Calculate progress stats
-  const progressStats = useMemo(() => {
+  // Calculate archive stats
+  const archiveStats = useMemo(() => {
     const total = tasks.length;
     const completed = tasks.filter(t => t.completed).length;
-    const today = tasks.filter(t => 
-      t.dueDate && isToday(parseISO(t.dueDate)) && !t.completed
-    ).length;
-    const overdue = tasks.filter(t => 
-      t.dueDate && isPast(parseISO(t.dueDate)) && !t.completed && !isToday(parseISO(t.dueDate))
-    ).length;
+    const pending = tasks.filter(t => !t.completed).length;
+    const recent = tasks.filter(t => {
+      if (!t.archivedAt) return false;
+      const archived = parseISO(t.archivedAt);
+      const daysSince = (new Date() - archived) / (1000 * 60 * 60 * 24);
+      return daysSince <= 7;
+    }).length;
 
-    return { total, completed, today, overdue };
+    return { total, completed, pending, recent };
   }, [tasks]);
 
-  // Task operations
-  const handleAddTask = async (taskData) => {
-    try {
-      const newTask = await taskService.create(taskData);
-      setTasks(prev => [newTask, ...prev]);
-    } catch (error) {
-      throw error;
+  const handleRestoreTask = async (taskId) => {
+    if (!window.confirm('Are you sure you want to restore this task?')) {
+      return;
     }
+
+    // Optimistic update
+    const taskToRestore = tasks.find(t => t.id === taskId);
+    setTasks(prev => prev.filter(t => t.id !== taskId));
+
+    try {
+      await taskService.restore(taskId);
+      toast.success('Task restored successfully');
+    } catch (error) {
+      // Revert optimistic update
+      if (taskToRestore) {
+        setTasks(prev => [...prev, taskToRestore]);
+      }
+      toast.error('Failed to restore task');
+    }
+  };
+
+  const handleDeleteTask = async (taskId) => {
+    if (!window.confirm('Are you sure you want to permanently delete this task? This action cannot be undone.')) {
+      return;
+    }
+
+    // Optimistic update
+    const taskToDelete = tasks.find(t => t.id === taskId);
+    setTasks(prev => prev.filter(t => t.id !== taskId));
+
+    try {
+      await taskService.delete(taskId);
+      toast.success('Task permanently deleted');
+    } catch (error) {
+      // Revert optimistic update
+      if (taskToDelete) {
+        setTasks(prev => [...prev, taskToDelete]);
+      }
+      toast.error('Failed to delete task');
+    }
+  };
+
+  const handleEditTask = (task) => {
+    toast.info('Edit functionality coming soon!');
   };
 
   const handleToggleComplete = async (taskId) => {
@@ -151,56 +184,6 @@ const filteredAndSortedTasks = useMemo(() => {
       toast.error('Failed to update task');
     }
   };
-
-  const handleEditTask = (task) => {
-    // For now, we'll just show a toast - editing would need a separate form
-    toast.info('Edit functionality coming soon!');
-  };
-
-  const handleDeleteTask = async (taskId) => {
-    if (!window.confirm('Are you sure you want to delete this task?')) {
-      return;
-    }
-
-    // Optimistic update
-    const taskToDelete = tasks.find(t => t.id === taskId);
-    setTasks(prev => prev.filter(t => t.id !== taskId));
-
-    try {
-      await taskService.delete(taskId);
-      toast.success('Task deleted successfully');
-    } catch (error) {
-      // Revert optimistic update
-      if (taskToDelete) {
-        setTasks(prev => [...prev, taskToDelete]);
-      }
-      toast.error('Failed to delete task');
-    }
-};
-
-  const handleArchiveTask = async (taskId) => {
-    if (!window.confirm('Are you sure you want to archive this task?')) {
-      return;
-    }
-
-    // Optimistic update
-    const taskToArchive = tasks.find(t => t.id === taskId);
-    setTasks(prev => prev.map(t => 
-      t.id === taskId ? { ...t, archived: true, archivedAt: new Date().toISOString() } : t
-    ));
-
-    try {
-      await taskService.archive(taskId);
-      toast.success('Task archived successfully');
-    } catch (error) {
-      // Revert optimistic update
-      if (taskToArchive) {
-        setTasks(prev => prev.map(t => 
-          t.id === taskId ? taskToArchive : t
-        ));
-      }
-      toast.error('Failed to archive task');
-    }
 
   if (error) {
     return (
@@ -225,10 +208,31 @@ const filteredAndSortedTasks = useMemo(() => {
           <div className="p-6">
             <div className="mb-6">
               <h1 className="text-2xl font-heading font-bold text-gray-900">TaskFlow</h1>
-              <p className="text-sm text-gray-600 mt-1">Organize and complete daily tasks</p>
+              <p className="text-sm text-gray-600 mt-1">Archived Tasks</p>
             </div>
             
-            <ProgressOverview {...progressStats} />
+            {/* Archive Overview */}
+            <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-100">
+              <h3 className="text-sm font-medium text-gray-900 mb-3">Archive Overview</h3>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Total Archived</span>
+                  <span className="font-medium">{archiveStats.total}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Completed</span>
+                  <span className="font-medium text-accent">{archiveStats.completed}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Pending</span>
+                  <span className="font-medium text-warning">{archiveStats.pending}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Recent (7 days)</span>
+                  <span className="font-medium text-primary">{archiveStats.recent}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </aside>
 
@@ -240,20 +244,12 @@ const filteredAndSortedTasks = useMemo(() => {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h2 className="text-xl font-heading font-semibold text-gray-900">
-                    Your Tasks
+                    Archived Tasks
                   </h2>
                   <p className="text-sm text-gray-600">
-                    {filteredAndSortedTasks.length} tasks found
+                    {filteredAndSortedTasks.length} archived tasks found
                   </p>
                 </div>
-                
-                <Button
-                  icon="Plus"
-                  onClick={() => setShowAddForm(true)}
-                  className="shadow-md"
-                >
-                  Add Task
-                </Button>
               </div>
 
               {/* Search and Filters */}
@@ -262,12 +258,19 @@ const filteredAndSortedTasks = useMemo(() => {
                   <div className="flex-1">
                     <SearchBar
                       onSearch={setSearchQuery}
-                      placeholder="Search tasks..."
+                      placeholder="Search archived tasks..."
                     />
                   </div>
                   <SortDropdown
                     currentSort={sortBy}
                     onSortChange={setSortBy}
+                    options={[
+                      { value: 'archivedAt', label: 'Date Archived' },
+                      { value: 'dueDate', label: 'Due Date' },
+                      { value: 'priority', label: 'Priority' },
+                      { value: 'category', label: 'Category' },
+                      { value: 'created', label: 'Date Created' }
+                    ]}
                   />
                 </div>
 
@@ -285,24 +288,17 @@ const filteredAndSortedTasks = useMemo(() => {
               tasks={filteredAndSortedTasks}
               categories={categories}
               onToggleComplete={handleToggleComplete}
-onEditTask={handleEditTask}
+              onEditTask={handleEditTask}
               onDeleteTask={handleDeleteTask}
-              onArchiveTask={handleArchiveTask}
+              onRestoreTask={handleRestoreTask}
               loading={loading}
+              showArchived={true}
             />
           </div>
         </main>
       </div>
-
-      {/* Add Task Form Modal */}
-      <AddTaskForm
-        isOpen={showAddForm}
-        onClose={() => setShowAddForm(false)}
-        onSubmit={handleAddTask}
-        categories={categories}
-      />
     </div>
   );
 };
 
-export default Home;
+export default Archive;

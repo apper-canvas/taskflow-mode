@@ -9,7 +9,10 @@ const TaskList = ({
   onToggleComplete, 
   onEditTask, 
   onDeleteTask,
-  loading = false 
+  onArchiveTask,
+  onRestoreTask,
+  loading = false,
+  showArchived = false
 }) => {
   const getCategoryById = (categoryId) => {
     return categories.find(cat => cat.id === categoryId);
@@ -86,12 +89,15 @@ const TaskList = ({
             transition={{ delay: index * 0.05 }}
             layout
           >
-            <TaskCard
+<TaskCard
               task={task}
               category={getCategoryById(task.categoryId)}
               onToggleComplete={() => onToggleComplete(task.id)}
               onEdit={() => onEditTask(task)}
               onDelete={() => onDeleteTask(task.id)}
+              onArchive={onArchiveTask ? () => onArchiveTask(task.id) : undefined}
+              onRestore={onRestoreTask ? () => onRestoreTask(task.id) : undefined}
+              showArchived={showArchived}
             />
           </motion.div>
         ))}

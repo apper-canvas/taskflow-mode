@@ -1,4 +1,5 @@
 import Home from '@/components/pages/Home';
+import Archive from '@/components/pages/Archive';
 
 export const routes = [
   {
@@ -7,5 +8,12 @@ export const routes = [
     path: '/',
     icon: 'CheckSquare',
     component: Home
+},
+  {
+    id: 'archive',
+    label: 'Archive',
+    path: '/archive',
+    icon: 'Archive',
+    component: Archive
   }
 ];

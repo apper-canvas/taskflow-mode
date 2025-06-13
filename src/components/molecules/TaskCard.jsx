@@ -5,7 +5,7 @@ import ApperIcon from '@/components/ApperIcon';
 import Checkbox from '@/components/atoms/Checkbox';
 import Badge from '@/components/atoms/Badge';
 
-const TaskCard = ({ task, category, onToggleComplete, onEdit, onDelete }) => {
+const TaskCard = ({ task, category, onToggleComplete, onEdit, onDelete, onArchive, onRestore, showArchived = false }) => {
   const priorityColors = {
     1: '#10B981', // Low - Green
     2: '#F59E0B', // Medium - Amber
@@ -72,7 +72,7 @@ const TaskCard = ({ task, category, onToggleComplete, onEdit, onDelete }) => {
               {task.title}
             </h3>
             
-            <div className="flex items-center space-x-2">
+<div className="flex items-center space-x-2">
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -81,6 +81,29 @@ const TaskCard = ({ task, category, onToggleComplete, onEdit, onDelete }) => {
               >
                 <ApperIcon name="Edit2" className="w-4 h-4" />
               </motion.button>
+              
+              {showArchived ? (
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={onRestore}
+                  className="text-gray-400 hover:text-accent"
+                  title="Restore task"
+                >
+                  <ApperIcon name="RotateCcw" className="w-4 h-4" />
+                </motion.button>
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={onArchive}
+                  className="text-gray-400 hover:text-accent"
+                  title="Archive task"
+                >
+                  <ApperIcon name="Archive" className="w-4 h-4" />
+                </motion.button>
+              )}
+              
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}

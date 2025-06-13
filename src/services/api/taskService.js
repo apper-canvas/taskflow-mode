@@ -74,6 +74,45 @@ const taskService = {
     await delay(250);
     return tasks.filter(t => !t.completed).map(t => ({ ...t }));
   }
-};
+},
+
+  async archive(id) {
+    await delay(200);
+    const index = tasks.findIndex(t => t.id === id);
+    if (index === -1) {
+      throw new Error('Task not found');
+    }
+    
+    const archivedTask = {
+      ...tasks[index],
+      archived: true,
+      archivedAt: new Date().toISOString()
+    };
+    
+    tasks[index] = archivedTask;
+    return { ...archivedTask };
+  },
+
+  async restore(id) {
+    await delay(200);
+    const index = tasks.findIndex(t => t.id === id);
+    if (index === -1) {
+      throw new Error('Task not found');
+    }
+    
+    const restoredTask = {
+      ...tasks[index],
+      archived: false,
+      archivedAt: null
+    };
+    
+    tasks[index] = restoredTask;
+    return { ...restoredTask };
+  },
+
+  async getArchived() {
+    await delay(250);
+    return tasks.filter(t => t.archived).map(t => ({ ...t }));
+  }
 
 export default taskService;
